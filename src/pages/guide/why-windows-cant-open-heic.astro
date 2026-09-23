@@ -1,0 +1,89 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Share from '../../components/Share.astro';
+import MoreTools from '../../components/MoreTools.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import guidesData from '../../data/guides.json';
+import { articleLd, howToLd } from '../../lib/seo';
+import { absoluteUrl, withBase } from '../../lib/url';
+import { site } from '../../site.config';
+
+const guide = (guidesData as { slug: string; title: string; description: string }[]).find((g) => g.slug === 'why-windows-cant-open-heic')!;
+const updated = site.launched;
+
+const steps = [
+  { name: 'Convert the file online', text: 'Use the HEIC to JPG converter — drop the file in, it converts locally in your browser (nothing is uploaded) and downloads a JPG that opens everywhere, including old software and printers.' },
+  { name: "Install Microsoft's HEIF codec extension", text: 'Get the free "HEIF Image Extensions" add-on from the Microsoft Store, plus the separate, paid (about $0.99) "HEVC Video Extensions" codec that HEIC photos also need. Neither converts anything — they let Windows read the format going forward.' },
+  { name: "Change your iPhone's camera format", text: 'On the iPhone go to Settings → Camera → Formats → Most Compatible. New photos are then saved directly as JPG — this only affects future photos, not ones already taken.' },
+];
+
+const faqs = [
+  {
+    q: 'Is HEIC the same as HEIF?',
+    a: 'Almost — HEIC is the specific Apple file extension for photos stored using the HEIF (High Efficiency Image Format) container. The terms are used interchangeably in practice.',
+  },
+  {
+    q: 'Will converting a HEIC to JPG lose quality?',
+    a: 'A small amount, because JPG uses different (older, less efficient) compression — but at a high quality setting (85–95) the difference is not visible to the eye. Use a quality of 90+ if you want to be safe.',
+  },
+  {
+    q: 'Can I make my iPhone stop taking HEIC photos?',
+    a: 'Yes — on the iPhone go to Settings → Camera → Formats and choose "Most Compatible" instead of "High Efficiency". New photos will be saved as JPG, at roughly double the file size.',
+  },
+];
+---
+
+<Base title={`${guide.title} | ${site.name}`} description={guide.description} image={`/og/${guide.slug}.png`} imageAlt={guide.title} jsonLd={[articleLd({ headline: guide.title, description: guide.description, url: `/guide/${guide.slug}/`, datePublished: site.launched, dateModified: updated }), howToLd({ name: guide.title, description: guide.description, steps })]}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: guide.title, url: `/guide/${guide.slug}/` }]} />
+    <h1>{guide.title}</h1>
+    <p class="muted small">Last updated: {updated}</p>
+
+    <p>
+      Since iOS 11 (2017), iPhones save photos as <strong>HEIC</strong> (High Efficiency Image Container) by default instead
+      of JPG. HEIC photos are roughly half the file size of an equivalent JPG at the same visual quality — great for
+      storage on the phone, but Windows' built-in Photos app and File Explorer thumbnail viewer cannot open a HEIC file out
+      of the box, because Windows does not ship the HEVC video codec that HEIC's image compression depends on for licensing
+      reasons.
+    </p>
+
+    <h2>Three ways to fix it</h2>
+    <h3>1. Convert the file online (fastest, no install)</h3>
+    <p>
+      Use the <a href={withBase('/heic-to-jpg/')}>HEIC to JPG converter</a> — drop the file in, it converts locally in your browser
+      (nothing is uploaded) and downloads a JPG that opens everywhere, including old software and printers.
+    </p>
+    <h3>2. Install Microsoft's HEIF codec extension</h3>
+    <p>
+      Microsoft offers a free <a href="https://apps.microsoft.com/detail/9pmmsr1cgpwg" target="_blank" rel="noopener noreferrer">"HEIF Image Extensions"</a> add-on
+      in the Microsoft Store that lets Windows Photos and File Explorer preview HEIC files natively. HEIC photos also need the
+      separate, paid (about $0.99) <a href="https://apps.microsoft.com/detail/9n4wgh0z6vhq" target="_blank" rel="noopener noreferrer">"HEVC Video Extensions"</a> codec,
+      since HEIC's image compression depends on it. Neither converts anything — they just let Windows read the format going forward.
+    </p>
+    <h3>3. Change your iPhone's camera format</h3>
+    <p>
+      On the iPhone: <strong>Settings → Camera → Formats → Most Compatible</strong>. New photos are then saved directly as
+      JPG, so this only affects future photos, not ones already taken.
+    </p>
+
+    <h2>Which should you pick?</h2>
+    <p>
+      For a one-off file (or a batch) you already have, converting online is the quickest fix and needs no install. If you
+      regularly move photos to a Windows PC, installing the codec or switching your iPhone's format saves doing this every
+      time.
+    </p>
+
+    <Share url={absoluteUrl(`/guide/${guide.slug}/`)} text={guide.title} />
+  </article>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>

@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "why-windows-cant-open-heic",
+    "title": "Why Windows Can't Open HEIC Photos (and How to Fix It)",
+    "description": "Why iPhone photos in HEIC format fail to open on Windows, and three ways to fix it — install a codec, change your iPhone's camera format, or convert online.",
+    "ogSubtitle": "HEIC on Windows, explained"
+  },
+  {
+    "slug": "jpg-vs-png-vs-webp",
+    "title": "JPG vs PNG vs WebP: Which Image Format Should You Use?",
+    "description": "A plain comparison of JPG, PNG and WebP — file size, transparency, animation and browser support — with a table so you can pick the right one in seconds.",
+    "ogSubtitle": "Compression, transparency, support"
+  },
+  {
+    "slug": "how-to-reduce-image-size-for-upload",
+    "title": "How to Reduce an Image's File Size Before You Upload It",
+    "description": "Step-by-step ways to shrink a photo's file size before uploading it to a form, email or website that rejects large files — with exact settings to use.",
+    "ogSubtitle": "Get under any upload limit"
+  },
+  {
+    "slug": "image-size-cheat-sheet",
+    "title": "Image Size Cheat Sheet: Social, Email & Print",
+    "description": "Exact pixel sizes for Instagram, Facebook link previews, email attachments, passport photos and photo prints — one sourced, dated table.",
+    "ogSubtitle": "Pixel sizes for every common use"
+  }
+]

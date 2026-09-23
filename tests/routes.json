@@ -1,0 +1,22 @@
+[
+  "/heic-to-jpg/",
+  "/webp-to-png/",
+  "/png-to-webp/",
+  "/avif-to-jpg/",
+  "/gif-to-png/",
+  "/bmp-to-png/",
+  "/compress-image/",
+  "/compress-jpeg/",
+  "/compress-png/",
+  "/compress-image-to-50kb/",
+  "/compress-image-to-200kb/",
+  "/resize-image/",
+  "/resize-image-to-1080x1080/",
+  "/passport-photo-size/",
+  "/remove-exif/",
+  "/guide/why-windows-cant-open-heic/",
+  "/guide/jpg-vs-png-vs-webp/",
+  "/guide/how-to-reduce-image-size-for-upload/",
+  "/guide/image-size-cheat-sheet/",
+  "/privacy-proof/"
+]

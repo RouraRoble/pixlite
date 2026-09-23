@@ -1,0 +1,85 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Share from '../../components/Share.astro';
+import MoreTools from '../../components/MoreTools.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import guidesData from '../../data/guides.json';
+import { FORMATS } from '../../lib/formats';
+import { articleLd } from '../../lib/seo';
+import { absoluteUrl, withBase } from '../../lib/url';
+import { site } from '../../site.config';
+
+const guide = (guidesData as { slug: string; title: string; description: string }[]).find((g) => g.slug === 'jpg-vs-png-vs-webp')!;
+const updated = site.launched;
+const rows = [FORMATS.jpeg, FORMATS.png, FORMATS.webp];
+
+const faqs = [
+  { q: 'Which format is smallest?', a: 'For photos, WebP is usually smallest at equal visual quality, JPG next, PNG largest. For flat-colour graphics (logos, screenshots with text), PNG can beat JPG despite being lossless, because JPG\'s compression artefacts hurt sharp edges.' },
+  { q: 'Which format should I use for a logo with a transparent background?', a: 'PNG or WebP — both support transparency. JPG does not, and will fill transparent areas with a solid colour (usually white or black).' },
+  { q: 'Is WebP safe to use everywhere in 2026?', a: 'For the web, yes — every current browser supports it. Some older desktop software, printers and a few upload forms still reject it, which is why Pixlite\'s WebP to PNG/JPG converters exist.' },
+];
+---
+
+<Base title={`${guide.title} | ${site.name}`} description={guide.description} image={`/og/${guide.slug}.png`} imageAlt={guide.title} jsonLd={articleLd({ headline: guide.title, description: guide.description, url: `/guide/${guide.slug}/`, datePublished: site.launched, dateModified: updated })}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: guide.title, url: `/guide/${guide.slug}/` }]} />
+    <h1>{guide.title}</h1>
+    <p class="muted small">Last updated: {updated}</p>
+
+    <p>
+      Short answer: use <strong>JPG</strong> for photos, <strong>PNG</strong> for anything needing a transparent background
+      or crisp flat colour (logos, screenshots), and <strong>WebP</strong> when you control the whole pipeline and want the
+      smallest file for the web — it can do both jobs at once, usually at a smaller size than either.
+    </p>
+
+    <h2>Comparison table</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Format</th><th>Compression</th><th>Transparency</th><th>Animation</th><th>Typical file size (same photo)</th><th>Browser support</th></tr>
+        </thead>
+        <tbody>
+          {rows.map((f) => (
+            <tr>
+              <td>{f.name}</td>
+              <td>{f.compression}</td>
+              <td>{f.transparency ? 'Yes' : 'No'}</td>
+              <td>{f.animation ? 'Yes' : 'No'}</td>
+              <td>{f.key === 'jpeg' ? 'Baseline (100%)' : f.key === 'webp' ? '~25–35% smaller than JPG' : '3–5× larger than JPG'}</td>
+              <td>{f.browserSupport}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small">File-size comparisons are typical ranges for photographic content at visually similar quality, not a lab measurement of a specific image — actual results vary by image content and the encoder settings used.</p>
+
+    <h2>When PNG beats JPG despite being lossless</h2>
+    <p>
+      JPG's compression is built for photographs — smooth gradients and lots of colour noise. It struggles with sharp edges
+      and flat colour blocks (text, line art, UI screenshots), producing visible ringing artefacts around edges. PNG's
+      lossless compression handles those cases with no artefacts and often a smaller file than a JPG saved at a quality
+      high enough to hide the ringing.
+    </p>
+
+    <h2>Converting between them</h2>
+    <p>
+      Pixlite converts in every direction without uploading anything:
+      <a href={withBase('/jpg-to-png/')}>JPG to PNG</a>, <a href={withBase('/png-to-jpg/')}>PNG to JPG</a>, <a href={withBase('/png-to-webp/')}>PNG to WebP</a>,{' '}
+      <a href={withBase('/jpg-to-webp/')}>JPG to WebP</a>, <a href={withBase('/webp-to-png/')}>WebP to PNG</a> and <a href={withBase('/webp-to-jpg/')}>WebP to JPG</a>.
+    </p>
+
+    <Share url={absoluteUrl(`/guide/${guide.slug}/`)} text={guide.title} />
+  </article>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>

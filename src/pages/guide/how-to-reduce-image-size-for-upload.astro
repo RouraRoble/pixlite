@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Share from '../../components/Share.astro';
+import MoreTools from '../../components/MoreTools.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import guidesData from '../../data/guides.json';
+import { howToLd } from '../../lib/seo';
+import { absoluteUrl, withBase } from '../../lib/url';
+import { site } from '../../site.config';
+
+const guide = (guidesData as { slug: string; title: string; description: string }[]).find((g) => g.slug === 'how-to-reduce-image-size-for-upload')!;
+const updated = site.launched;
+
+const steps = [
+  { name: 'Pick the right format', text: 'Photos compress best as JPG or WebP. Screenshots and graphics with text compress best as PNG or WebP — converting a photo-heavy PNG to JPG alone often cuts its size by 60–90%.' },
+  { name: 'Set a target file size directly', text: 'If the form gives you a hard limit (e.g. "under 200KB"), use a compress-to-target tool and enter that number instead of guessing a quality percentage.' },
+  { name: 'Resize before you compress', text: 'A form rarely needs a 12-megapixel original. Resizing to the largest dimension it will actually display (or a bit more) before compressing gives a much smaller file at the same visual quality than compressing alone.' },
+  { name: 'Strip metadata', text: 'EXIF data (camera model, settings, sometimes GPS location) adds a small amount of size and is rarely needed by the receiving form — re-encoding removes it automatically.' },
+  { name: 'Check the result before you submit', text: 'Compare the before/after file size and preview the image at real size — over-compressing introduces visible blocky artefacts, especially around text or faces.' },
+];
+
+const faqs = [
+  { q: 'Why does my file get bigger when I "compress" it?', a: 'This happens if the source is already efficiently compressed (e.g. a JPG at low quality) and you increase quality, add a lossless conversion overhead, or the tool re-encodes an already-small file with wasteful settings. Pixlite always shows the before/after size so you can tell immediately and try a lower quality or a different format.' },
+  { q: 'What is a safe quality setting for uploads?', a: 'For JPG/WebP, 70–85% quality is usually visually indistinguishable from the original for web/form use, at 40–70% smaller file size. Below 50% you start to see visible blockiness in detailed areas.' },
+  { q: 'My upload form rejects HEIC — what do I do?', a: `Convert it first — see the <a href="${withBase('/heic-to-jpg/')}">HEIC to JPG converter</a>. Most forms only accept JPG/PNG/WebP.` },
+];
+---
+
+<Base title={`${guide.title} | ${site.name}`} description={guide.description} image={`/og/${guide.slug}.png`} imageAlt={guide.title} jsonLd={howToLd({ name: guide.title, description: guide.description, steps })}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: guide.title, url: `/guide/${guide.slug}/` }]} />
+    <h1>{guide.title}</h1>
+    <p class="muted small">Last updated: {updated}</p>
+
+    <p>
+      The fastest way to shrink a photo for an upload form, email attachment or slow connection: convert it to JPG or WebP,
+      resize it to the size it will actually be displayed at, and compress it to a specific KB target rather than guessing a
+      quality percentage. Here is the full process.
+    </p>
+
+    <ol>
+      {steps.map((s) => (
+        <li>
+          <strong>{s.name}.</strong> {s.text}
+        </li>
+      ))}
+    </ol>
+
+    <h2>Try it now</h2>
+    <p>
+      Use <a href={withBase('/compress-image-to-200kb/')}>compress to 200KB</a> for most web forms, or{' '}
+      <a href={withBase('/compress-image-to-100kb/')}>100KB</a> for stricter ones — both run entirely in your browser, so the file you
+      are trying to shrink is never uploaded anywhere in the process.
+    </p>
+
+    <Share url={absoluteUrl(`/guide/${guide.slug}/`)} text={guide.title} />
+  </article>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>

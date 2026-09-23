@@ -1,0 +1,142 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Faq from '../components/Faq.astro';
+import Share from '../components/Share.astro';
+import AdSlot from '../components/AdSlot.astro';
+import MoreTools from '../components/MoreTools.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Workbench from '../components/Workbench/Workbench';
+import toolsData from '../data/tools.json';
+import { FORMATS } from '../lib/formats';
+import { getToolMeta, type ToolEntry } from '../lib/tool-meta';
+import { PRIVACY_FAQ, BATCH_FAQ, METADATA_FAQ } from '../data/faq-snippets';
+import { webAppLd } from '../lib/seo';
+import { absoluteUrl, withBase } from '../lib/url';
+import { site } from '../site.config';
+
+export function getStaticPaths() {
+  return (toolsData as ToolEntry[]).map((tool) => ({ params: { tool: tool.slug }, props: { tool } }));
+}
+
+const tools = toolsData as ToolEntry[];
+
+const { tool } = Astro.props as { tool: ToolEntry };
+const meta = getToolMeta(tool);
+
+// Related tools: same mode first, then anything sharing a from/to format, capped at 6.
+const related = tools
+  .filter((t) => t.slug !== tool.slug)
+  .sort((a, b) => {
+    const score = (t: ToolEntry) => {
+      let s = 0;
+      if (t.mode === tool.mode) s += 2;
+      if (tool.from && (t.from === tool.from || t.to === tool.from)) s += 1;
+      if (tool.to && (t.to === tool.to || t.from === tool.to)) s += 1;
+      return s;
+    };
+    return score(b) - score(a);
+  })
+  .slice(0, 6);
+
+const faqs = [
+  ...(tool.mode === 'exif' ? [] : [METADATA_FAQ]),
+  PRIVACY_FAQ,
+  BATCH_FAQ(site.limits.maxFiles),
+];
+
+// Format facts table: shown for convert/compress tools where a concrete format applies.
+const factsFormats = [tool.from, tool.to].filter((k): k is keyof typeof FORMATS => Boolean(k) && k in FORMATS);
+const uniqueFacts = Array.from(new Set(factsFormats)).map((k) => FORMATS[k]);
+---
+
+<Base title={meta.title} description={meta.description} jsonLd={webAppLd({ name: meta.h1, description: meta.description, url: `/${tool.slug}/`, datePublished: site.launched, dateModified: site.launched })} image={`/og/${tool.slug}.png`} imageAlt={meta.h1}>
+  <article class="container container--narrow section">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: meta.h1, url: `/${tool.slug}/` }]} />
+    <p class="eyebrow">Free · private · no upload</p>
+    <h1>{meta.h1}</h1>
+    <p class="lead">{meta.intro}</p>
+    <p class="muted small">Last updated: {site.launched}</p>
+  </article>
+
+  <section class="container" aria-label="Workbench">
+    <Workbench
+      client:load
+      initialFormat={meta.workbench.initialFormat}
+      lockFormat={meta.workbench.lockFormat}
+      initialResizeMode={meta.workbench.initialResizeMode}
+      initialPreset={meta.workbench.initialPreset}
+      lockResize={meta.workbench.lockResize}
+      initialTargetKB={meta.workbench.initialTargetKB}
+      lockTargetKB={meta.workbench.lockTargetKB}
+      acceptHint={meta.workbench.acceptHint}
+      dropTitle={meta.workbench.dropTitle}
+    />
+  </section>
+
+  <AdSlot slot={`tool-${tool.slug}`} minHeight={90} />
+
+  <article class="container container--narrow section prose">
+    {
+      uniqueFacts.length > 0 && (
+        <>
+          <h2>Format facts</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Format</th>
+                  <th>Transparency</th>
+                  <th>Compression</th>
+                  <th>Browser support</th>
+                  <th>Best for</th>
+                </tr>
+              </thead>
+              <tbody>
+                {uniqueFacts.map((f) => (
+                  <tr>
+                    <td>{f.name}</td>
+                    <td>{f.transparency ? 'Yes' : 'No'}</td>
+                    <td>{f.compression}</td>
+                    <td>{f.browserSupport}</td>
+                    <td>{f.typicalUse}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )
+    }
+
+    <h2>Why nothing is uploaded</h2>
+    <p>
+      Pixlite decodes your image with the browser's own <code>createImageBitmap</code>/Canvas APIs and re-encodes it in a
+      background Web Worker. There is no server-side endpoint that receives file contents — you can confirm this on the{' '}
+      <a href={withBase('/privacy-proof/')}>privacy proof page</a> by watching the Network tab while converting.
+    </p>
+
+    <h2>Related tools</h2>
+    <ul>
+      {related.map((t) => <li><a href={withBase(`/${t.slug}/`)}>{getToolMeta(t).h1}</a></li>)}
+    </ul>
+
+    <Share url={absoluteUrl(`/${tool.slug}/`)} text={meta.h1 + ' — free, private, no upload'} />
+  </article>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>
+
+<style>
+  .lead {
+    font-size: var(--text-lg);
+    color: var(--fg-muted);
+  }
+</style>

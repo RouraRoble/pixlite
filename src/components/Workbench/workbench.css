@@ -1,0 +1,306 @@
+.wb {
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* Drop zone */
+.wb-drop {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-5);
+  text-align: center;
+  background: var(--bg-elevated);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.wb-drop:hover,
+.wb-drop:focus-within {
+  border-color: var(--accent);
+}
+.wb-drop[data-active='true'] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
+}
+.wb-drop input[type='file'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.wb-drop-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto var(--space-3);
+  color: var(--accent);
+}
+.wb-drop-title {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-1);
+}
+.wb-drop-hint {
+  display: block;
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+}
+.wb-drop {
+  display: block;
+}
+
+/* Settings panel */
+.wb-settings {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.wb-field label {
+  color: var(--fg-muted);
+}
+.wb-field .wb-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+.wb-range-value {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  min-width: 3.5ch;
+  text-align: right;
+}
+.wb-note {
+  font-size: var(--text-xs);
+  color: var(--fg-muted);
+  margin-top: var(--space-1);
+}
+.wb-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.wb-pill {
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  color: var(--fg);
+  border-radius: 999px;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.wb-pill[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 600;
+}
+
+/* Toolbar */
+.wb-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+.wb-toolbar-stats {
+  color: var(--fg-muted);
+  font-size: var(--text-sm);
+}
+.wb-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* File list */
+.wb-list {
+  display: grid;
+  gap: var(--space-3);
+}
+.wb-card {
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+.wb-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.wb-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.wb-thumb button {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.wb-meta {
+  min-width: 0;
+}
+.wb-meta-name {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wb-meta-line {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+.wb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+}
+.wb-badge--gps {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+.wb-badge--ok {
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+  border-color: var(--success);
+  color: var(--success);
+}
+.wb-badge--err {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.wb-gps-note {
+  font-size: var(--text-xs);
+  color: var(--warning);
+  margin-top: 2px;
+}
+.wb-gps-note a {
+  color: inherit;
+}
+.wb-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+.wb-icon-btn {
+  min-height: 36px;
+  min-width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+.wb-progress {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-muted);
+  overflow: hidden;
+  margin-top: var(--space-1);
+}
+.wb-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width 160ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wb-progress > span {
+    transition: none;
+  }
+}
+
+/* Result summary card */
+.wb-summary {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 14%, var(--bg-elevated)), var(--bg-elevated));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+}
+.wb-summary-headline {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Minimal share bar (mirrors src/components/Share.astro's look for JS-rendered contexts). */
+.share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+.share__label {
+  color: var(--fg-muted);
+  margin-right: var(--space-1);
+}
+.share__btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  color: var(--fg);
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+.share__btn:hover {
+  border-color: var(--border-strong);
+}
+
+@media (max-width: 560px) {
+  .wb-card {
+    grid-template-columns: 48px 1fr;
+  }
+  .wb-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+  .wb-thumb {
+    width: 48px;
+    height: 48px;
+  }
+}

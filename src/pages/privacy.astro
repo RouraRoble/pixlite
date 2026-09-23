@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { withBase } from '../lib/url';
+import { site } from '../site.config';
+const title = 'Privacy Policy';
+const description = `How ${site.name} handles data: no accounts, no uploads, no tracking cookies, minimal aggregate analytics.`;
+const updated = site.launched;
+---
+
+<Base title={title} description={description}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'Privacy', url: '/privacy/' }]} />
+    <h1>{title}</h1>
+    <p class="muted small">Last updated: {updated}</p>
+    <h2>Summary</h2>
+    <ul>
+      <li>{site.name} does not require an account and does not ask for personal information.</li>
+      <li>Photos and images you add are processed entirely in your browser (decoded, converted, compressed, resized) and are never uploaded to our servers — see the <a href={withBase('/privacy-proof/')}>privacy proof page</a> to verify this yourself.</li>
+      <li>EXIF metadata, including GPS location, camera model and timestamp, is read locally only to warn you before export, and is always stripped from the file Pixlite produces. If a photo contains GPS coordinates, the warning links to OpenStreetMap (a third-party, non-tracking map service) so you can see the approximate location before it is stripped — that page only opens if you click it, and no coordinates are sent anywhere automatically.</li>
+      <li>Pixlite does not store any preferences or history in your browser's local storage — the only thing kept between visits is your last-used conversion settings, encoded in the page URL itself if you bookmark or share it.</li>
+      <li>We do not use advertising or tracking cookies.</li>
+    </ul>
+    <h2>Analytics</h2>
+    <p>
+      Analytics, if enabled at all, is one of two cookieless services — never both: <a href="https://plausible.io/privacy-focused-web-analytics" rel="noopener">Plausible Analytics</a> (an open-source,
+      EU-hosted, GDPR-compliant analytics platform that does not use cookies or cross-site tracking), or a self-hosted
+      beacon we operate that records only the page path, the referring site's domain, and an approximate device-width
+      class (small/medium/large). Either way we collect only aggregate, cookieless data — never a per-person identifier,
+      and never anything about the files you process. This data cannot identify you and is used solely to understand
+      which pages are useful. Requests that send a "Do Not Track" signal are not counted.
+    </p>
+    <h2>Advertising and affiliate links</h2>
+    <p>
+      Some pages may show advertising or affiliate links to fund the service. If a third-party advertising provider is
+      used, it may set cookies subject to its own policy and, where required by law, only after you give consent. Affiliate
+      links are marked and never change the price you pay.
+    </p>
+    <h2>Hosting</h2>
+    <p>The site is served as static files from a content delivery network. Standard server logs (IP address, user agent, requested URL) may be kept briefly by the hosting provider for security and abuse prevention.</p>
+    <h2>Your rights</h2>
+    <p>
+      Under the GDPR, UK GDPR, CCPA and similar laws you may have rights of access, rectification, erasure and objection.
+      Because we do not hold personal data about you, there is usually nothing to access or delete; if you believe
+      otherwise, contact <a href={`mailto:${site.contactEmail}`}>{site.contactEmail}</a>.
+    </p>
+    <h2>Children</h2>
+    <p>The service is not directed at children under 13 and we do not knowingly collect data from them.</p>
+    <h2>Changes</h2>
+    <p>We will update this page when practices change and revise the date above.</p>
+  </article>
+</Base>

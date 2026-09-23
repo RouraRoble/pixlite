@@ -1,0 +1,45 @@
+---
+/**
+ * Monetization slot. Renders nothing unless PUBLIC_ADSENSE_CLIENT is set at build time.
+ * Keeps layout stable (min-height) to protect CLS when ads are enabled.
+ */
+import { site } from '../site.config';
+interface Props {
+  slot?: string;
+  format?: 'auto' | 'rectangle' | 'horizontal';
+  minHeight?: number;
+}
+const { slot = '', format = 'auto', minHeight = 0 } = Astro.props;
+const enabled = Boolean(site.adsenseClient && slot);
+---
+
+{
+  enabled && (
+    <aside class="ad-slot" aria-label="Advertisement" style={`min-height:${minHeight}px`}>
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={site.adsenseClient}
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
+    </aside>
+  )
+}
+
+{
+  enabled && (
+    <script>
+      // Request an ad for this slot once the AdSense loader (added in Base.astro when
+      // site.adsenseClient is set) is present. No-op — and no origin ever contacted — when ads
+      // are disabled, since this script only renders when `enabled` is true above.
+      const slots = document.querySelectorAll('ins.adsbygoogle');
+      if (slots.length) {
+        const w = window as any;
+        w.adsbygoogle = w.adsbygoogle || [];
+        slots.forEach(() => w.adsbygoogle.push({}));
+      }
+    </script>
+  )
+}

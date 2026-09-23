@@ -1,0 +1,124 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import MoreTools from '../components/MoreTools.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { site } from '../site.config';
+import { withBase } from '../lib/url';
+
+const title = `About ${site.name}`;
+const description = `How ${site.name} converts, compresses and resizes images locally in your browser: methodology, libraries and licences, and how to verify nothing is uploaded.`;
+const updated = site.launched;
+---
+
+<Base title={title} description={description}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'About', url: '/about/' }]} />
+    <h1>{title}</h1>
+    <p class="muted small">Last updated: {updated}</p>
+    <p>{site.description}</p>
+
+    <h2>Methodology</h2>
+    <h3>Decoding</h3>
+    <p>
+      Most formats (JPG, PNG, WebP, GIF, BMP, and AVIF where the browser supports it) are decoded with the browser's native{' '}
+      <code>createImageBitmap()</code>, using <code>imageOrientation: 'from-image'</code> so a photo's EXIF rotation flag is
+      baked into the pixels before any further processing — this is what keeps a portrait photo upright after its metadata
+      is stripped. HEIC/HEIF files are decoded with{' '}
+      <a href="https://github.com/strukturag/libheif" rel="noopener">libheif</a>, compiled to WebAssembly by the{' '}
+      <a href="https://www.npmjs.com/package/libheif-js" rel="noopener">libheif-js</a> package, loaded only when a HEIC
+      file is actually added (a separate, lazily-fetched script chunk).
+    </p>
+    <h3>Resizing</h3>
+    <p>
+      A "max width/height" resize scales the image down to fit inside the given box without cropping (never upscales). A
+      percentage resize scales both dimensions by that factor. A preset (social square, OG image, passport size) crops to
+      the target aspect ratio around the image's centre, then scales to the exact pixel size — see{' '}
+      <code>src/lib/resize.ts</code>.
+    </p>
+    <h3>Compression to an exact size</h3>
+    <p>
+      For "compress to N KB", Pixlite binary-searches the JPG/WebP quality parameter (0.01–0.95) — typically 6–8 encode
+      attempts — until the resulting file is at or under the target; the target is treated as a hard maximum, never an
+      approximate one. If even the lowest quality setting still produces a file larger than the target, the image is scaled
+      down by ~18% and the quality search runs again, up to 4 times, before reporting the best size actually achieved (with
+      a "best effort" badge, since that file is still over target). The search algorithm is a pure, unit-tested function (
+      <code>src/lib/target-size.ts</code>) decoupled from the encoder, so its behaviour is deterministic and verifiable.
+      PNG is excluded because it is lossless — there is no quality dial to search over.
+    </p>
+    <h3>Metadata removal</h3>
+    <p>
+      Re-encoding an image via the Canvas API only ever copies pixel data — EXIF, IPTC, XMP and GPS blocks are not part of
+      that pixel data, so they are dropped automatically on every export, with no separate "strip" step to forget. Before
+      export, EXIF is read locally (not uploaded) with{' '}
+      <a href="https://github.com/MikeKovarik/exifr" rel="noopener">exifr</a> purely to warn you if a GPS location is
+      present.
+    </p>
+
+    <h2>Libraries used and their licences</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Library</th><th>Purpose</th><th>Licence</th></tr></thead>
+        <tbody>
+          <tr><td>libheif-js</td><td>HEIC/HEIF decoding (WASM), loaded only when needed</td><td>LGPL-3.0</td></tr>
+          <tr><td>exifr</td><td>Local EXIF/GPS metadata reading</td><td>MIT</td></tr>
+          <tr><td>jszip</td><td>Client-side ZIP export</td><td>MIT</td></tr>
+          <tr><td>satori</td><td>Build-time Open Graph image generation</td><td>MIT</td></tr>
+          <tr><td>sharp</td><td>Build-time icon/OG raster output (never runs in the browser)</td><td>Apache-2.0</td></tr>
+          <tr><td>Preact</td><td>Workbench UI island</td><td>MIT</td></tr>
+          <tr><td>Astro</td><td>Static site framework</td><td>MIT</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small">
+      libheif-js is LGPL-3.0 and is used unmodified, loaded dynamically as its own script chunk — it is not statically
+      linked into the site's main bundle. Its source is available at{' '}
+      <a href="https://github.com/catdad-experiments/libheif-js" rel="noopener">github.com/catdad-experiments/libheif-js</a>,
+      and the full licence text is at{' '}
+      <a href="https://www.gnu.org/licenses/lgpl-3.0.txt" rel="noopener">gnu.org/licenses/lgpl-3.0.txt</a>.
+    </p>
+
+    <h2>Format facts sources</h2>
+    <p>
+      The per-format comparison tables (transparency, animation, lossless/lossy, browser support) on tool and guide pages
+      reflect the published specifications and browser compatibility data from{' '}
+      <a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types" rel="noopener">MDN Web Docs — Image file type and format guide</a>{' '}
+      and the format owners' own documentation (<a href="https://www.w3.org/TR/PNG/" rel="noopener">W3C PNG spec</a>,{' '}
+      <a href="https://developers.google.com/speed/webp" rel="noopener">Google's WebP documentation</a>,{' '}
+      <a href="https://nokiatech.github.io/heif/" rel="noopener">HEIF format documentation</a>), current as of {updated}.
+    </p>
+
+    <h2>Known limits (stated honestly)</h2>
+    <ul>
+      <li>AVIF encoding is not offered (browsers cannot encode AVIF from a canvas yet) — AVIF can be decoded and converted away from, not to.</li>
+      <li>GIF input keeps only the first frame; there is no animated GIF/WebP output.</li>
+      <li>Very large batches (100+ full-resolution photos) on an older phone will be slower — files over {site.limits.maxLongestSidePx}px on the longest side are flagged so you know why.</li>
+      <li>The passport-size tool resizes to standard pixel dimensions only; it does not check background colour, head position or other biometric rules — verify those separately with your issuing office.</li>
+    </ul>
+
+    <h2>Monetization</h2>
+    <p>
+      Pixlite is free. It may show non-intrusive, clearly-labelled ad slots below the workbench (never over the tool
+      itself) and, in future, affiliate links to cloud storage or photo-printing services — see <code>PRODUCT.md</code> in
+      the source repository for the exact plan. No affiliate link is live yet.
+    </p>
+
+    <h2>Privacy by design</h2>
+    <p>
+      {site.name} runs entirely in your browser. Files are not uploaded, no account is needed, and there are no tracking
+      cookies. See the <a href={withBase('/privacy-proof/')}>privacy proof page</a> to verify this yourself, and the{' '}
+      <a href={withBase('/privacy/')}>privacy policy</a> for the full detail.
+    </p>
+
+    <h2>Who maintains it</h2>
+    <p>
+      Built and maintained by <a href={site.author.url} rel="noopener">{site.author.name}</a>. Launched {site.launched}.
+      Found a bug, a wrong format fact, or have a suggestion? <a href={withBase('/contact/')}>Get in touch</a>.
+    </p>
+  </article>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>

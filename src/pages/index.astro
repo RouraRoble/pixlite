@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import AdSlot from '../components/AdSlot.astro';
+import MoreTools from '../components/MoreTools.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import Workbench from '../components/Workbench/Workbench';
+import { site } from '../site.config';
+import { webAppLd } from '../lib/seo';
+import { withBase } from '../lib/url';
+import { getToolMeta, type ToolEntry } from '../lib/tool-meta';
+import toolsData from '../data/tools.json';
+
+const tools = toolsData as ToolEntry[];
+
+const faqs = [
+  {
+    q: 'Does Pixlite upload my photos?',
+    a: `No. Every conversion, compression and resize runs inside your browser using the Canvas API and a Web Worker. Files never touch a server — see the <a href="${withBase('/privacy-proof/')}">privacy proof page</a> for how to verify this yourself.`,
+  },
+  {
+    q: 'What image formats can Pixlite read and write?',
+    a: 'It reads JPG, PNG, WebP, GIF, BMP, AVIF and HEIC/HEIF (iPhone photos). It writes JPG, PNG and WebP — the three formats every browser can encode without a server.',
+  },
+  {
+    q: 'How does "compress to an exact size" work?',
+    a: 'Pixlite binary-searches the JPG/WebP quality setting until the output is at or under your target — a hard maximum, not an approximation — then scales the image down and searches again if quality alone cannot reach it. The achieved size is always shown, with a "best effort" note if the exact target genuinely could not be reached.',
+  },
+  {
+    q: 'Is there a limit on how many files I can convert?',
+    a: `Up to ${site.limits.maxFiles} images per batch, processed one at a time so a large batch does not freeze your browser tab. Very large batches of full-resolution photos do use more memory the more files you add, so on an older or low-memory phone keep batches to a few dozen at once.`,
+  },
+  {
+    q: 'Does it remove hidden location data from my photos?',
+    a: 'Yes. Re-encoding an image strips all EXIF metadata, including GPS coordinates, camera model and timestamp. If a photo you add contains a location, Pixlite tells you before you export.',
+  },
+];
+
+const heicTool = tools.find((t) => t.slug === 'heic-to-jpg');
+---
+
+<Base title={`${site.name} — Convert, Compress & Resize Images, Free & Private`} description={site.description} jsonLd={webAppLd({ features: ['Convert HEIC/WebP/AVIF/PNG/JPG', 'Compress to an exact KB target', 'Resize with presets', 'Strip EXIF/GPS metadata', 'Batch ZIP export'], datePublished: site.launched, dateModified: site.launched })}>
+  <section class="hero container">
+    <p class="eyebrow">Free · private · batches up to 200 images</p>
+    <h1>Convert, compress and resize images — without uploading a single one.</h1>
+    <p class="lead">
+      Drop in HEIC, WebP, AVIF, PNG or JPG files. Pixlite decodes, compresses to an exact KB target, resizes and strips
+      metadata entirely on your device, in a background Web Worker. Nothing leaves the browser tab.
+    </p>
+    <p class="muted small">Last updated: {site.launched}</p>
+  </section>
+
+  <section class="container" aria-label="Workbench">
+    <Workbench client:load dropTitle="Drop photos here, click to browse, or paste with Ctrl/Cmd+V" />
+  </section>
+
+  <AdSlot slot="home-below-workbench" minHeight={90} />
+
+  <section class="container container--narrow section">
+    <h2>How it works</h2>
+    <ol>
+      <li>Add files by dragging them in, clicking to browse, or pasting from your clipboard.</li>
+      <li>Pick an output format, a quality or a KB target, and an optional resize — settings are saved in the page URL so you can bookmark or share your exact setup.</li>
+      <li>Convert. Each file is decoded and re-encoded in a Web Worker, sequentially, so large batches stay responsive.</li>
+      <li>Download files one by one or as a single ZIP. Nothing is ever sent anywhere.</li>
+    </ol>
+    <p>
+      Converting HEIC photos from an iPhone? Try the dedicated <a href={withBase(heicTool ? `/${heicTool.slug}/` : '/heic-to-jpg/')}>HEIC to JPG converter</a>,
+      or browse every <a href={`${withBase('/')}#tools`}>tool page</a> below.
+    </p>
+  </section>
+
+  <section class="container container--narrow section" id="tools">
+    <h2>Every tool</h2>
+    <p class="muted">Each page below pre-configures the workbench above for one exact job.</p>
+    <div class="grid">
+      {
+        tools.map((t) => (
+          <a class="card" href={withBase(`/${t.slug}/`)}>
+            {getToolMeta(t).h1}
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>
+
+<style>
+  .hero {
+    padding-block: var(--space-12) var(--space-6);
+    max-width: var(--container-narrow);
+  }
+  .lead {
+    font-size: var(--text-lg);
+    color: var(--fg-muted);
+  }
+  #tools .grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
+  }
+  #tools a.card {
+    text-decoration: none;
+    color: var(--fg);
+    font-size: var(--text-sm);
+  }
+  #tools a.card:hover {
+    border-color: var(--accent);
+  }
+</style>

@@ -1,0 +1,83 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Faq from '../components/Faq.astro';
+import MoreTools from '../components/MoreTools.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { withBase } from '../lib/url';
+import { site } from '../site.config';
+
+const title = 'Privacy Proof — Verify Nothing Is Uploaded';
+const description = `How to verify for yourself that ${site.name} never uploads your photos: DevTools Network tab, airplane mode, and why it works offline after the first load.`;
+
+const faqs = [
+  {
+    q: 'Why should I trust this without checking?',
+    a: "You shouldn't have to — that's the point of this page. Every claim here is something you can verify yourself in under a minute using tools already built into your browser.",
+  },
+  {
+    q: 'Does Pixlite use any analytics or tracking?',
+    a: `Only if the site owner enables a cookieless, aggregate analytics beacon (page path and device class, no per-person identifier) — see the <a href="${withBase('/privacy/')}">privacy policy</a>. It never includes file contents, filenames or image data, and you can confirm that in the Network tab exactly the same way.`,
+  },
+];
+---
+
+<Base title={title} description={description}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'Privacy proof', url: '/privacy-proof/' }]} />
+    <h1>{title}</h1>
+    <p class="muted small">Last updated: {site.launched}</p>
+    <p>
+      {site.name} processes every image locally, in your browser tab, using the Canvas API and a background Web Worker.
+      Nothing about your photos — not the pixels, not the filename, not the metadata — is sent to a server. Here is how to
+      check that yourself, in under a minute.
+    </p>
+
+    <h2>Method 1: DevTools Network tab</h2>
+    <ol>
+      <li>Open this site and press <kbd>F12</kbd> (or <kbd>Cmd+Opt+I</kbd> on a Mac) to open DevTools.</li>
+      <li>Click the <strong>Network</strong> tab, and tick "Preserve log".</li>
+      <li>Add a photo to the workbench, choose a format and quality, and click <strong>Convert</strong>.</li>
+      <li>
+        Watch the request list: you will see the page's own scripts/fonts load once, but <strong>no new request appears
+        while your file is being converted or downloaded</strong> — because it never leaves the page.
+      </li>
+    </ol>
+
+    <h2>Method 2: Airplane mode</h2>
+    <ol>
+      <li>Load {site.name} once, fully (wait for the page to finish loading).</li>
+      <li>Turn on airplane mode / disconnect Wi-Fi.</li>
+      <li>Add photos and convert them — everything keeps working, because processing never depended on a network connection.</li>
+    </ol>
+    <p class="muted small">
+      Note: the very first visit still needs a network connection to download the page itself (HTML/CSS/JS), and a
+      HEIC/HEIF file needs one extra small script chunk downloaded the first time you add a HEIC file — after that, both
+      are cached by the browser and airplane mode works for repeat visits too.
+    </p>
+
+    <h2>Method 3: Read the source</h2>
+    <p>
+      {site.name}'s conversion code lives in <code>src/lib/</code>, <code>src/workers/encode.ts</code> and{' '}
+      <code>src/components/Workbench/</code> — it is a static site with no backend API route that could receive a file.
+      There is no <code>fetch()</code> or <code>XMLHttpRequest</code> call anywhere in the conversion path; search the
+      Network tab requests above for confirmation rather than trusting this sentence.
+    </p>
+
+    <h2>What does leave the browser?</h2>
+    <p>
+      Nothing related to your files, ever. If the site owner has enabled analytics, a single small, cookieless beacon may
+      report the page path and a rough device class after you load a page — never image data, filenames or metadata. See
+      the <a href={withBase('/privacy/')}>privacy policy</a> for the exact fields.
+    </p>
+  </article>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>

@@ -1,0 +1,154 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Share from '../../components/Share.astro';
+import MoreTools from '../../components/MoreTools.astro';
+import SiteFooter from '../../components/SiteFooter.astro';
+import guidesData from '../../data/guides.json';
+import { articleLd } from '../../lib/seo';
+import { mmToPx, inToPx } from '../../lib/resize';
+import { absoluteUrl, withBase } from '../../lib/url';
+import { site } from '../../site.config';
+
+const guide = (guidesData as { slug: string; title: string; description: string }[]).find((g) => g.slug === 'image-size-cheat-sheet')!;
+const updated = site.launched;
+
+const passportEu = { w: mmToPx(35), h: mmToPx(45) };
+const passportUs = { w: inToPx(2), h: inToPx(2) };
+const print4x6 = { w: inToPx(4), h: inToPx(6) };
+
+const rows: { use: string; size: string; note: string; href: string }[] = [
+  {
+    use: 'Instagram / LinkedIn square post',
+    size: '1080 × 1080px',
+    note: 'Non-square photos get centre-cropped by the app if you upload a different ratio — crop to square yourself for control over what stays in frame.',
+    href: '/resize-image-to-1080x1080/',
+  },
+  {
+    use: 'Instagram / TikTok Story or Reel cover',
+    size: '1080 × 1920px (9:16)',
+    note: 'Keep the centre ~1080×1420px free of text — the top and bottom are covered by the UI on most phones.',
+    href: '/resize-image/?rz=max&mw=1080&mh=1920',
+  },
+  {
+    use: 'Facebook / LinkedIn / Slack link-preview image (Open Graph)',
+    size: '1200 × 630px',
+    note: 'This is the standard OG image size almost every platform reads for link unfurls — one size covers all of them.',
+    href: '/resize-image/?rz=preset&preset=1200x630',
+  },
+  {
+    use: 'Email attachment',
+    size: 'No fixed pixel size',
+    note: 'Most providers cap total attachments around 25MB, but many recipients’ inboxes reject far less — keep a single photo under 1–2MB to be safe on a slow connection.',
+    href: '/compress-image-to-500kb/',
+  },
+  {
+    use: 'A web form with a stated KB/MB limit',
+    size: 'No fixed pixel size',
+    note: 'Match the form’s own stated cap exactly rather than guessing a quality percentage — enter the number directly.',
+    href: '/compress-image/',
+  },
+  {
+    use: `EU/UK passport photo`,
+    size: `${passportEu.w} × ${passportEu.h}px (35 × 45mm @300dpi)`,
+    note: 'Pixel size only — background colour, head position and lighting rules are set by your issuing office, not by this table.',
+    href: '/passport-photo-size/',
+  },
+  {
+    use: 'US passport / visa photo',
+    size: `${passportUs.w} × ${passportUs.h}px (2 × 2in @300dpi)`,
+    note: 'Same caveat: this is the pixel size only, not a full biometric-compliance check.',
+    href: '/resize-image/?rz=preset&preset=passport-2x2in',
+  },
+  {
+    use: '4 × 6in photo print',
+    size: `${print4x6.w} × ${print4x6.h}px (@300dpi)`,
+    note: '300dpi (dots per inch) is the standard "photo quality" print density — below ~150dpi a print starts to look visibly soft.',
+    href: `/resize-image/?rz=max&mw=${print4x6.w}&mh=${print4x6.h}`,
+  },
+];
+
+const faqs = [
+  {
+    q: 'Do these exact pixel sizes matter, or just the aspect ratio?',
+    a: 'For social platforms, mostly the aspect ratio — they resize and compress whatever you upload to fit their own display sizes. Uploading at (or above) the recommended pixel size just means their compression starts from a sharp source instead of an already-soft one, so the result looks cleaner.',
+  },
+  {
+    q: "What if I don't know a form or platform's exact size limit?",
+    a: 'Compress to a conservative round number — 500KB is safe for almost every web form and email attachment in 2026. Use the compress-to-KB tools above, which report the exact size achieved so you know it fits before you submit.',
+  },
+  {
+    q: 'Why is print measured in dpi and not just pixels?',
+    a: 'Print size is physical (inches or mm), so the pixel count you need depends on how densely those pixels are packed per inch — that density is dpi. 300dpi is the long-standing "photo quality" standard; below about 150dpi, printed detail starts to look visibly soft to the eye.',
+  },
+  {
+    q: 'These numbers might be out of date — how do I check?',
+    a: `Platforms change upload specs over time, so treat this table as a well-sourced starting point rather than gospel — the passport and print figures are physical-standard maths (mm/inches to pixels at 300dpi) and will not change, but social-platform recommended sizes are worth re-checking on the platform's own help pages if a specific edge case matters. This page is dated below and updated when Pixlite's own presets change.`,
+  },
+];
+---
+
+<Base title={`${guide.title} | ${site.name}`} description={guide.description} image={`/og/${guide.slug}.png`} imageAlt={guide.title} jsonLd={articleLd({ headline: guide.title, description: guide.description, url: `/guide/${guide.slug}/`, datePublished: site.launched, dateModified: updated })}>
+  <article class="container container--narrow section prose">
+    <Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: guide.title, url: `/guide/${guide.slug}/` }]} />
+    <h1>{guide.title}</h1>
+    <p class="muted small">Last updated: {updated}</p>
+
+    <p>
+      Short answer: <strong>1080×1080px</strong> for a square social post, <strong>1200×630px</strong> for a link-preview
+      image, <strong>under 1–2MB</strong> for an email attachment, and <strong>300dpi</strong> (roughly 1200×1800px for a
+      4×6in photo) for a home or lab print. The full table below covers every common case, with a one-click link to resize
+      or compress to that exact target — nothing is uploaded at any step.
+    </p>
+
+    <h2>The table</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Where it's going</th>
+            <th>Target size</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <td>{r.use}</td>
+              <td class="num"><a href={withBase(r.href)}>{r.size}</a></td>
+              <td>{r.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted small">
+      Passport and print figures are exact physical-standard conversions (millimetres/inches to pixels at 300dpi) computed
+      by the same <code>src/lib/resize.ts</code> module the workbench uses, so this table cannot silently drift out of sync
+      with the tools linked from it. Social-platform sizes reflect each platform's long-standing recommended dimensions as
+      of {updated}; platforms occasionally revise these, so treat them as a strong starting point rather than a guarantee.
+    </p>
+
+    <h2>Why the exact pixel count usually doesn't matter (except for print)</h2>
+    <p>
+      Instagram, Facebook, LinkedIn and similar platforms all re-encode and resize whatever you upload to fit their own
+      display sizes and bandwidth budgets — you cannot force a specific final file size on their end. What you control is
+      the <em>starting</em> quality: uploading a sharp image at (or a little above) their recommended pixel size means their
+      compression has good source material to work from, instead of upscaling something already soft. Print is the
+      exception — a printer has no equivalent "we'll resize it for you" step, so an under-sized file really will look
+      blurry at the requested paper size.
+    </p>
+
+    <Share url={absoluteUrl(`/guide/${guide.slug}/`)} text={guide.title} />
+  </article>
+
+  <section class="container container--narrow section">
+    <Faq items={faqs} />
+  </section>
+
+  <Fragment slot="footer">
+    <MoreTools />
+    <SiteFooter />
+  </Fragment>
+</Base>
